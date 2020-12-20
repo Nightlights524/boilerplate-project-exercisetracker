@@ -4,7 +4,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const mongoose = require('mongoose');
-const { response } = require('express');
 
 // Set up database and schema
 mongoose.set('debug', true);
@@ -57,5 +56,3 @@ app.get('/api/exercise/users', async (req, res) => {
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
-
-//------------
