@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
   exercises: [{
     description: String,
     duration: Number,
-    date: String
+    date: Date
   }]
 });
 
@@ -65,28 +65,27 @@ app.get('/api/exercise/users', async (req, res) => {
     return res.json({"error": error.message});
   }
 });
-
+  
 app.post('/api/exercise/add', async (req, res) => {
   try {
+    const date = req.body.date ? new Date(req.body.date) : new Date();
+
     const userDoc = await User.findById(req.body.userId).orFail().exec();
-    
-    console.log(userDoc.exercises);
     
     userDoc.exercises.push({
       description: req.body.description,
       duration: req.body.duration,
-      date: req.body.date
+      date: date
     });
     
     const updatedUser = await userDoc.save();
-    console.log(userDoc.exercises);
 
     return res.json({
       username: updatedUser.username,
       _id: updatedUser._id,
       description: req.body.description,
       duration: req.body.duration,
-      date: req.body.date
+      date: date.toDateString()
     });
   }
   catch (error) {
