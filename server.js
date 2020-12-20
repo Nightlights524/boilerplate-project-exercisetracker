@@ -69,7 +69,7 @@ app.get('/api/exercise/users', async (req, res) => {
 app.post('/api/exercise/add', async (req, res) => {
   try {
     const date = req.body.date ? new Date(req.body.date) : new Date();
-
+    
     const userDoc = await User.findById(req.body.userId).orFail().exec();
     
     userDoc.exercises.push({
@@ -79,13 +79,31 @@ app.post('/api/exercise/add', async (req, res) => {
     });
     
     const updatedUser = await userDoc.save();
-
+    
     return res.json({
       username: updatedUser.username,
       _id: updatedUser._id,
       description: req.body.description,
-      duration: parseInt(req.body.duration),
+      duration: parseFloat(req.body.duration),
       date: date.toDateString()
+    });
+  }
+  catch (error) {
+    console.error(error);
+    return res.json({"error": error.message});
+  }
+});
+
+
+app.get('/api/exercise/log', async (req, res) => {
+  try {
+    const userDoc = await User.findById(req.query.userId).orFail().exec();
+    
+    return res.json({
+      username: userDoc.username,
+      _id: userDoc._id,
+      log: userDoc.exercises,
+      count: userDoc.exercises.length
     });
   }
   catch (error) {
