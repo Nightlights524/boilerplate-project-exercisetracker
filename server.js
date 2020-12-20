@@ -84,7 +84,7 @@ app.post('/api/exercise/add', async (req, res) => {
       username: updatedUser.username,
       _id: updatedUser._id,
       description: req.body.description,
-      duration: req.body.duration,
+      duration: parseInt(req.body.duration),
       date: date.toDateString()
     });
   }
