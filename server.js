@@ -27,30 +27,31 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
-app.post('/api/exercise/new-user', (req, res) => {
-  
-  async function addUser() {
-    try {
-      const userDoc = await User.findOne({username: req.body.username}).exec();
+app.post('/api/exercise/new-user', async (req, res) => {
+  try {
+    const userDoc = await User.findOne({username: req.body.username}).exec();
 
-      if (userDoc) {
-        return res.send("Username already taken, please try again!");
-      }
+    if (userDoc) {
+      return res.send("Username already taken, please try again!");
+    }
 
-      const user = new User({username: req.body.username});
-      const savedUser = await user.save();
-      return res.json({
-        username: savedUser.username,
-        _id: savedUser._id
-      });
-    }
-    catch (error) {
-      console.error(error);
-      return res.json({"error": error.message});
-    }
+    const user = new User({username: req.body.username});
+    return res.json(await user.save());
   }
+  catch (error) {
+    console.error(error);
+    return res.json({"error": error.message});
+  }
+});
 
-  addUser();
+app.get('/api/exercise/users', async (req, res) => {
+  try {
+    return res.json(await User.find().exec());
+  }
+  catch (error) {
+    console.error(error);
+    return res.json({"error": error.message});
+  }
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
