@@ -10,10 +10,19 @@ mongoose.set('debug', true);
 mongoose.connect(process.env.DB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => {console.log('Successfully connected');});
+db.once('open', () => {console.log('Successfully connected to database');});
 
 const userSchema = new mongoose.Schema({
-  username: {type: String, required: true, unique: true}
+  username: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  exercises: [{
+    description: String,
+    duration: Number,
+    date: String
+  }]
 });
 
 const User = mongoose.model('User', userSchema);
@@ -34,8 +43,12 @@ app.post('/api/exercise/new-user', async (req, res) => {
       return res.send("Username already taken, please try again!");
     }
 
-    const user = new User({username: req.body.username});
-    return res.json(await user.save());
+    const savedUser = await User.create({username: req.body.username});
+
+    return res.json({
+      username: savedUser.username,
+      _id: savedUser._id
+    });
   }
   catch (error) {
     console.error(error);
@@ -46,6 +59,35 @@ app.post('/api/exercise/new-user', async (req, res) => {
 app.get('/api/exercise/users', async (req, res) => {
   try {
     return res.json(await User.find().exec());
+  }
+  catch (error) {
+    console.error(error);
+    return res.json({"error": error.message});
+  }
+});
+
+app.post('/api/exercise/add', async (req, res) => {
+  try {
+    const userDoc = await User.findById(req.body.userId).orFail().exec();
+    
+    console.log(userDoc.exercises);
+    
+    userDoc.exercises.push({
+      description: req.body.description,
+      duration: req.body.duration,
+      date: req.body.date
+    });
+    
+    const updatedUser = await userDoc.save();
+    console.log(userDoc.exercises);
+
+    return res.json({
+      username: updatedUser.username,
+      _id: updatedUser._id,
+      description: req.body.description,
+      duration: req.body.duration,
+      date: req.body.date
+    });
   }
   catch (error) {
     console.error(error);
