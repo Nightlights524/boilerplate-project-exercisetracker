@@ -99,30 +99,33 @@ app.get('/api/exercise/log', async (req, res) => {
   try {
     const fromDate = new Date(req.query.from);
     const toDate = new Date(req.query.to);
-    const limit = Number(req.query.limit).floor();
+    const limit = Math.floor(Number(req.query.limit));
 
     const userDoc = await User.findById(req.query.userId).orFail().exec();
-    // let log = userDoc.exercises;
+    let log = userDoc.exercises;
 
-    // if (isValidDate(fromDate)) {
-    //   log = log.filter(element => element.date >= fromDate);
-    // }
+    if (isValidDate(fromDate)) {
+      log = log.filter(element => element.date >= fromDate);
+    }
     
-    // if (isValidDate(toDate)) {
-    //   log = log.filter(element => element.date <= toDate);
-    // }
+    if (isValidDate(toDate)) {
+      log = log.filter(element => element.date <= toDate);
+    }
 
-    // if (limit >= 0) {
-    //   log = log.slice(0, limit);
-    // }
+    if (limit >= 0) {
+      log = log.slice(0, limit);
+    }
     
+    console.log(userDoc.username);
+    console.log(userDoc._id);
+    console.log(userDoc.exercises);
+    console.log(userDoc.exercises.length);
+
     return res.json({
       username: userDoc.username,
       _id: userDoc._id,
-      log: userDoc.exercises,
-      count: userDoc.exercises.length
-      // log: log,
-      // count: log.length
+      log: log,
+      count: log.length
     });
   }
   catch (error) {
