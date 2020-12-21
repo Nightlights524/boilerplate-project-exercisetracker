@@ -116,11 +116,6 @@ app.get('/api/exercise/log', async (req, res) => {
       log = log.slice(0, limit);
     }
     
-    console.log(userDoc.username);
-    console.log(userDoc._id);
-    console.log(userDoc.exercises);
-    console.log(userDoc.exercises.length);
-
     return res.json({
       username: userDoc.username,
       _id: userDoc._id,
