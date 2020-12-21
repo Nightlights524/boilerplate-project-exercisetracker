@@ -97,13 +97,30 @@ app.post('/api/exercise/add', async (req, res) => {
 
 app.get('/api/exercise/log', async (req, res) => {
   try {
+    const fromDate = new Date(req.query.from);
+    const toDate = new Date(req.query.to);
+    const limit = Number(req.query.limit).floor();
+
     const userDoc = await User.findById(req.query.userId).orFail().exec();
+    let log = userDoc.exercises;
+
+    if (isValidDate(fromDate)) {
+      log = log.filter(element => element.date >= fromDate);
+    }
+    
+    if (isValidDate(toDate)) {
+      log = log.filter(element => element.date <= toDate);
+    }
+
+    if (limit >= 0) {
+      log = log.slice(0, limit);
+    }
     
     return res.json({
       username: userDoc.username,
       _id: userDoc._id,
-      log: userDoc.exercises,
-      count: userDoc.exercises.length
+      log: log,
+      count: log.length
     });
   }
   catch (error) {
@@ -115,3 +132,9 @@ app.get('/api/exercise/log', async (req, res) => {
 const listener = app.listen(process.env.PORT || 3000, () => {
   console.log('Your app is listening on port ' + listener.address().port)
 })
+
+//-------------------------------------------
+
+function isValidDate(date) {
+  return date.getTime() === date.getTime();
+}
